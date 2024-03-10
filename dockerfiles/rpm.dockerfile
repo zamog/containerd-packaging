@@ -45,10 +45,9 @@ RUN if [ -f /etc/yum.repos.d/CentOS-*Sources.repo ]; then sed -i 's/altarch/cent
 FROM redhat-base AS amzn-base
 
 FROM redhat-base AS ol-base
-RUN . "/etc/os-release"; if [ "${VERSION_ID%.*}" -eq 7 ]; then yum-config-manager --enable ol7_addons --enable ol7_optional_latest; fi
-RUN . "/etc/os-release"; if [ "${VERSION_ID%.*}" -eq 8 ]; then yum-config-manager --enable ol8_addons; fi
 
 FROM redhat-base AS rocky-base
+RUN dnf config-manager --set-enabled powertools
 
 FROM redhat-base AS almalinux-base
 
@@ -58,7 +57,6 @@ RUN dnf install -y rpm-build git dnf-plugins-core
 FROM ${BUILD_IMAGE} AS suse-base
 # On older versions of Docker the path may not be explicitly set
 # opensuse also does not set a default path in their docker images
-RUN zypper -n install rpm-build git
 ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}
 RUN echo "%_topdir    /root/rpmbuild" > /root/.rpmmacros
 

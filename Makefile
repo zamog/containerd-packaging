@@ -32,7 +32,7 @@ clean:
 	-$(RM) -r build
 	-$(RM) -r src
 	-$(RM) common/containerd.service
-	-docker builder prune -f --filter until=24h
+	-podman builder prune -f --filter until=24h
 
 .PHONY: src
 src: src/github.com/containerd/containerd src/github.com/opencontainers/runc
@@ -89,12 +89,12 @@ build:
 	@echo "golang image : $(GOLANG_IMAGE)"
 	@echo "--------------------------------------------------------------------"
 
-	@docker pull "$(BUILD_IMAGE)"
+	@podman pull "$(BUILD_IMAGE)"
 
 	@if [ -z "$(BUILD_BASE)" ]; then echo "Invalid build image $(BUILD_IMAGE) no build base found"; exit 1; fi
 	@if [ -z "$(BUILD_TYPE)" ]; then echo "Invalid build image $(BUILD_IMAGE) no build type found"; exit 1; fi
 
-	@set -x; DOCKER_BUILDKIT=1 docker build \
+	@set -x; DOCKER_BUILDKIT=1 podman build \
 		--pull \
 		--build-arg GOLANG_IMAGE="$(GOLANG_IMAGE)" \
 		--build-arg BUILD_IMAGE="$(BUILD_IMAGE)" \
@@ -103,11 +103,9 @@ build:
 		--build-arg UID="$(shell id -u)" \
 		--build-arg GID="$(shell id -g)" \
 		--file="dockerfiles/$(BUILD_TYPE).dockerfile" \
-		--progress="$(PROGRESS)" \
 		--target="$(TARGET)" \
-		--output=. \
 		.
 
 .PHONY: validate
 validate: ## Validate files license header
-	docker run --rm -v $(CURDIR):/work -w /work golang:alpine sh -c 'go install github.com/kunalkushwaha/ltag@latest && ./scripts/validate/fileheader'
+	podman run --rm -v $(CURDIR):/work -w /work golang:alpine sh -c 'go install github.com/kunalkushwaha/ltag@latest && ./scripts/validate/fileheader'
