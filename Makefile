@@ -104,6 +104,7 @@ build:
 		--build-arg GID="$(shell id -g)" \
 		--file="dockerfiles/$(BUILD_TYPE).dockerfile" \
 		--target="$(TARGET)" \
+		--output=. \
 		.
 
 .PHONY: validate
